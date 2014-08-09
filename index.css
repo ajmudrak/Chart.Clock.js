@@ -1,0 +1,8 @@
+.timechart .morning, .timechart .evening {
+    display: inline-block;
+}
+.timechart .morning p, .timechart .evening p {
+    font-weight: bold;
+    text-align: center;
+}
+
