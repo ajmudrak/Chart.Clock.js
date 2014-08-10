@@ -232,3 +232,8 @@ var clickFunction = function(event) {
 // set up the events for clicking on an item in the chart
 Chart.helpers.bindEvents(myClock, ['click'], clickFunction);
 ```
+
+## Bug Fixes
+### v1.0.1
+- fixed issues with start/end time for appointments crossing the end or starting before the beginning of a clock face were showing the truncated times, not the full times
+- fixed issue with free time appearing as non-working hours if it crossed the end of non-working hours
