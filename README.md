@@ -9,6 +9,9 @@ the current time.
 ## Demo
 http://andymudrak.com/demos/Chart.Clock.js/
 
+## Creator's website
+Andy Mudrak: http://andymudrak.com/
+
 ## Requirements
 
 - Moment.js http://momentjs.com/
