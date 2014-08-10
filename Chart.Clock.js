@@ -123,8 +123,10 @@
             for (var i = 0; i < appointmentList.length; i++) {
                 var appointment = appointmentList[i].appointment;
                 var indexAt = appointmentList[i].indexAt;
-                var start = appointmentList[i].startMoment;
-                var end = appointmentList[i].endMoment;
+                var origStart = appointmentList[i].startMoment;
+                var origEnd = appointmentList[i].endMoment;
+                var start = moment(origStart);
+                var end = moment(origEnd);
                 var color = appointment.color || this.options.appointmentColor;
                 var highlight = appointment.highlight || this.options.appointmentHighlight;
                 if (end.isBefore(start) || start.isAfter(this.ending) || end.isBefore(this.beginning)) {
@@ -190,7 +192,7 @@
                 }
 
                 var duration = moment.duration(moment(end).subtract(start)).asHours();
-                layerData[layer].push({ appointment: appointment, appointmentIndexAt: indexAt, layer: layer, startAngle: this.calculateCircumference(moment.duration(start).asHours() % 12), value: duration, color: color, highlight: highlight, label: appointment.title, startTime: start.format("h:mm A"), endTime: end.format("h:mm A"), isOff: false, isFree: false });
+                layerData[layer].push({ appointment: appointment, appointmentIndexAt: indexAt, layer: layer, startAngle: this.calculateCircumference(moment.duration(start).asHours() % 12), value: duration, color: color, highlight: highlight, label: appointment.title, startTime: origStart.format("h:mm A"), endTime: origEnd.format("h:mm A"), segmentStartTime: start.format("h:mm A"), segmentEndTime: end.format("h:mm A"), isOff: false, isFree: false });
 
                 // recalculate maxLast
                 maxLast = moment.max(maxLast, end);
@@ -248,13 +250,13 @@
             if (freeStart.isBefore(this.workbeginning) && freeEnd.isAfter(this.workbeginning)) {
                 // split nonworking/free
                 var nonduration = moment.duration(moment(this.workbeginning).subtract(freeStart)).asHours();
-                layerData[0].push({ layer: 0, startAngle: this.calculateCircumference(moment.duration(freeStart).asHours() % 12), value: nonduration, color: this.options.offhoursColor, highlight: this.options.offhoursHighlight, label: "", startTime: freeStart.format("h:mm A"), endTime: this.workbeginning.format("h:mm A"), isOff: true, isFree: true });
+                layerData[0].push({ layer: 0, startAngle: this.calculateCircumference(moment.duration(freeStart).asHours() % 12), value: nonduration, color: this.options.offhoursColor, highlight: this.options.offhoursHighlight, label: "", startTime: freeStart.format("h:mm A"), endTime: this.workbeginning.format("h:mm A"), segmentStartTime: freeStart.format("h:mm A"), segmentendTime: this.workbeginning.format("h:mm A"), isOff: true, isFree: true });
                 freeStart = this.workbeginning;
             }
             if (freeStart.isBefore(this.workending) && freeEnd.isAfter(this.workending)) {
                 // split free/nonworking
                 var freetruncated = moment.duration(moment(this.workending).subtract(freeStart)).asHours();
-                layerData[0].push({ layer: 0, startAngle: this.calculateCircumference(moment.duration(freeStart).asHours() % 12), value: freetruncated, color: this.options.freeColor, highlight: this.options.freeHighlight, label: "", startTime: freeStart.format("h:mm A"), endTime: this.workending.format("h:mm A"), isOff: true, isFree: true });
+                layerData[0].push({ layer: 0, startAngle: this.calculateCircumference(moment.duration(freeStart).asHours() % 12), value: freetruncated, color: this.options.freeColor, highlight: this.options.freeHighlight, label: "", startTime: freeStart.format("h:mm A"), endTime: this.workending.format("h:mm A"), segmentStartTime: freeStart.format("h:mm A"), segmentendTime: this.workending.format("h:mm A"), isOff: false, isFree: true });
                 freeStart = this.workending;
             }
             var freeColor;
@@ -270,7 +272,7 @@
                 freeHighlight = this.options.freeHighlight;
             }
             var freeduration = moment.duration(moment(freeEnd).subtract(freeStart)).asHours();
-            layerData[0].push({ layer: 0, startAngle: this.calculateCircumference(moment.duration(freeStart).asHours() % 12), value: freeduration, color: freeColor, highlight: freeHighlight, label: "", startTime: freeStart.format("h:mm A"), endTime: freeEnd.format("h:mm A"), isOff: isoff, isFree: true });
+            layerData[0].push({ layer: 0, startAngle: this.calculateCircumference(moment.duration(freeStart).asHours() % 12), value: freeduration, color: freeColor, highlight: freeHighlight, label: "", startTime: freeStart.format("h:mm A"), endTime: freeEnd.format("h:mm A"), segmentStartTime: freeStart.format("h:mm A"), segmentendTime: freeEnd.format("h:mm A"), isOff: isoff, isFree: true });
 		},
 		update : function(){
 		    this.initialize(this.appointmentList);
@@ -330,6 +332,8 @@
 				isFree: segment.isFree,
 				appointment: segment.appointment,
 				appointmentIndexAt: segment.appointmentIndexAt,
+				segmentStartTime: segment.segmentStartTime,
+				segmentEndTime: segment.segmentEndTime,
 			}));
 		},
         getItemAtEvent : function(e){
