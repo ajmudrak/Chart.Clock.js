@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    
+        <title>Chart.Clock.js: Clock View Sample</title>
+        <link rel="stylesheet" type="text/css" href="index.css" />
+        
+        <!-- note: this example uses jQuery, though it is not required -->
+        <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+        <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+        
+        <!-- prerequisites -->
+        <script src="../moment.min.js"></script>
+        <script src="../Chart.min.js"></script>
+        
+        <!-- include the clock view chart type for Charts.js -->
+        <script src="../Chart.Clock.js"></script>
+        
+        <!-- include our own JavaScript code (can be in a script tag in this 
+             HTML file instead, if desired -->
+        <script src="index.js"></script>
+        
+    </head>
+    <body>
+        <h1>Chart.Clock.js</h1>
+        
+        <p>Clock View:</p>
+        <div id="timechart" class="timechart">
+            <div class="morning">
+                <p>Midnight -&gt; Noon</p>
+                <canvas width="400" height="400"></canvas>
+            </div>
+            <div class="evening">
+                <p>Noon -&gt; Night</p>
+                <canvas width="400" height="400"></canvas>
+            </div>
+        </div>
+        <div id="functions">
+            <div id="addAppt">
+                <p>Add more appointments:</p>
+                <form id="addForm">
+                    <div>
+                        <div class="error" data-for="start"></div>
+                        <label for="start">Start Time: *</label>
+                        <input type="text" id="start" value="" placeholder="h:mm AM/PM">
+                    </div>
+                    <div>
+                        <div class="error" data-for="end"></div>
+                        <label for="end">End Time: *</label>
+                        <input type="text" id="end" value="" placeholder="h:mm AM/PM">
+                    </div>
+                    <div>
+                        <div class="error" data-for="title"></div>
+                        <label for="title">Title: *</label>
+                        <input type="text" id="title" value="" placeholder="Enter a title">
+                    </div>
+                    <div>
+                        <button type="submit">Add Appointment</button>
+                    </div>
+                </form>
+            </div>
+            <div id="details">
+                <p>Details/remove appointment:</p>
+                <div>
+                    <label>Title:</label>
+                    <span class="title"></span>
+                </div>
+                <div>
+                    <label>Start:</label>
+                    <span class="startTime"></span>
+                </div>
+                <div>
+                    <label>End:</label>
+                    <span class="endTime"></span>
+                </div>
+                <div>
+                    <label>Notes: </label>
+                    <div class="notes"></div>
+                </div>
+                <div>
+                    <input type="hidden" class="indexAt" value="-1">
+                    <button class="delete">Delete</button>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

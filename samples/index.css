@@ -1,0 +1,28 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.timechart .morning, .timechart .evening {
+    display: inline-block;
+}
+.timechart .morning p, .timechart .evening p {
+    font-weight: bold;
+    text-align: center;
+}
+
+.error {
+    color: #f00;
+}
+
+#functions > div {
+    display: inline-block;
+    min-width: 300px;
+    vertical-align: top;
+    padding: 10px;
+}
+
+#details {
+    border-width: 3px;
+    border-radius: 10px;
+    border-style: solid;
+}

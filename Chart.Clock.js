@@ -1,42 +1,107 @@
 /* global moment, Chart */
 
 (function() {
-    var helpers = Chart.helpers;
+	var root = this,
+		Chart = root.Chart,
+		//Cache a local reference to Chart.helpers
+		helpers = Chart.helpers;
+		
     var defaultConfig = {
-        hourMarkerColor: '#ccc',
-        hourMarkerWidth: 1,
-        currentTimeColor: '#000',
-        currentTimeWidth: 2,
-        startTime: '12:00 PM',
-        duration: 12,
-        tooltipTemplate: "<%if (label){%><%=label%><%}%><%if (isFree) {%>Free<%}%><%if (isOff) {%>/Off<%}%> (<%=startTime%> - <%=endTime%>)",
+		//Boolean - Whether we should show a stroke on each segment
+		segmentShowStroke : true,
+
+		//String - The color of each segment stroke
+		segmentStrokeColor : "#fff",
+
+		//Number - The width of each segment stroke
+		segmentStrokeWidth : 2,
+
+		//The percentage of the chart that we cut out of the middle.
+		percentageInnerCutout : 50,
+
+		//Number - Amount of animation steps
+		animationSteps : 100,
+
+		//String - Animation easing effect
         animationEasing: "easeOutSine",
+
+		//Boolean - Whether we animate the rotation of the Doughnut
+		animateRotate : true,
+
+		//Boolean - Whether we animate scaling the Doughnut from the centre
+		animateScale : false,
+
+		//String - A legend template
+		legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>",
+		
+		//String - The color of the lines for the hours in the clockface
+        hourMarkerColor: '#ccc',
+        
+        //Number - The width of the lines for the hours in the clockface
+        hourMarkerWidth: 1,
+        
+        //String - The color of the line representing the current time of day
+        currentTimeColor: '#000',
+        
+        //Number - The width of the line representing the current time of day
+        currentTimeWidth: 2,
+        
+        //String - The time for the start of the clock (typically 12:00 AM or 12:00 PM)
+        startTime: '12:00 PM',
+        
+        //String - The template for the tooltip when hovering over an item
+        tooltipTemplate: "<%if (label){%><%=label%><%}%><%if (isFree) {%>Free<%}%><%if (isOff) {%>/Off<%}%> (<%=startTime%> - <%=endTime%>)",
+        
+        //String - The default color of each appointment on the clock
         appointmentColor: '#36a',
+
+        //String - The default highlight color of each appointment on the clock
         appointmentHighlight: '#58d',
+        
+        //String - The default color of free time on the clock
         freeColor: '#ddd',
+        
+        //String - The default highlight color of free time on the clock
         freeHighlight: '#eee',
+        
+        //String - The start time of working hours on the click
         workingHoursStart: '9:00 AM',
+        
+        //String - The end time of working hours on the click
         workingHoursEnd: '5:00 PM',
+        
+        //String - The default color of non-working-hours free time on the clock
         offhoursColor: '#999',
+        
+        //String - The default highlight color of non-working-hours free time
         offhoursHighlight: '#aaa',
+        
+        //Number - the percentage of maximum radius for overlapping appointments
         overlapRadiusPercent: 25,
     };
-    Chart.types.Pie.extend({
+    
+    Chart.Type.extend({
         name: "Clock",
         defaults : defaultConfig,
+        appointmentList: null,
         initialize: function(data){
             this.total = 12;
+            this.appointmentList = data.slice();
             
             this.beginning = moment(this.options.startTime, "h:mm A").month(1).date(1).year(1970);
-            this.ending = moment(this.beginning).add({ hours: this.options.duration });
+            this.ending = moment(this.beginning).add({ hours: this.total });
             this.workbeginning = moment(this.options.workingHoursStart, "h:mm A").month(1).date(1).year(1970);
             this.workending = moment(this.options.workingHoursEnd, "h:mm A").month(1).date(1).year(1970);
 
-            var appointmentList = data.slice();
+            // keep track of original indexes in list before sorting
+            var appointmentList = [];
+            for (var a = 0; a < this.appointmentList.length; a++) {
+                appointmentList.push({ indexAt: a, appointment: this.appointmentList[a] });
+            }
             
             for (var i = 0; i < appointmentList.length; i++) {
-                appointmentList[i].startMoment = moment(appointmentList[i].start, "h:mm A").month(1).date(1).year(1970);
-                appointmentList[i].endMoment = moment(appointmentList[i].end, "h:mm A").month(1).date(1).year(1970);
+                appointmentList[i].startMoment = moment(appointmentList[i].appointment.start, "h:mm A").month(1).date(1).year(1970);
+                appointmentList[i].endMoment = moment(appointmentList[i].appointment.end, "h:mm A").month(1).date(1).year(1970);
             }
             appointmentList.sort(function (a, b) {
                 if(a.startMoment.isBefore(b.startMoment)) {
@@ -56,9 +121,12 @@
             var maxLast = last[0];
             var layerData = [ [] ];
             for (var i = 0; i < appointmentList.length; i++) {
-                var appointment = appointmentList[i];
-                var start = appointment.startMoment;
-                var end = appointment.endMoment;
+                var appointment = appointmentList[i].appointment;
+                var indexAt = appointmentList[i].indexAt;
+                var start = appointmentList[i].startMoment;
+                var end = appointmentList[i].endMoment;
+                var color = appointment.color || this.options.appointmentColor;
+                var highlight = appointment.highlight || this.options.appointmentHighlight;
                 if (end.isBefore(start) || start.isAfter(this.ending) || end.isBefore(this.beginning)) {
                     // ends before this chart, or starts after it, or its start/end times are backwards
                     continue;
@@ -117,19 +185,19 @@
                 if (layer === 0) {
                     // check to add free time if it's not overlapping
                     if (maxLast.isBefore(start)) {
-                        this.addFree(layerData, maxLast, start);
+                        this.addFreeInternal(layerData, maxLast, start);
                     }
                 }
 
                 var duration = moment.duration(moment(end).subtract(start)).asHours();
-                layerData[layer].push({ layer: layer, startAngle: this.calculateCircumference(moment.duration(start).asHours() % 12), value: duration, color: this.options.appointmentColor, highlight: this.options.appointmentHighlight, label: appointment.title, startTime: start.format("h:mm A"), endTime: end.format("h:mm A"), isOff: false, isFree: false });
+                layerData[layer].push({ appointment: appointment, appointmentIndexAt: indexAt, layer: layer, startAngle: this.calculateCircumference(moment.duration(start).asHours() % 12), value: duration, color: color, highlight: highlight, label: appointment.title, startTime: start.format("h:mm A"), endTime: end.format("h:mm A"), isOff: false, isFree: false });
 
                 // recalculate maxLast
                 maxLast = moment.max(maxLast, end);
             }
             if (maxLast.isBefore(this.ending)) {
                 // calculate remainder to fill out the clock and add that to the pie chart
-                this.addFree(layerData, maxLast, this.ending);
+                this.addFreeInternal(layerData, maxLast, this.ending);
             }
             
             // populate chart data from the layers, from the back to front so they're drawn later in the right order
@@ -140,7 +208,6 @@
 			   }
 			}
 			this.maxLayers = layerData.length;
-			console.log(layerData);
 
             // initialize underlying pie chart
             //Declare segments as a static property to prevent inheriting across the Chart type prototype
@@ -169,12 +236,12 @@
 			}
 			
 			helpers.each(chartData,function(datapoint, index){
-				this.addData(datapoint, index, true);
+				this.addDataInternal(datapoint, index);
 			},this);
 			
 			this.render();
 		},
-		addFree: function(layerData, maxLast, start) {
+		addFreeInternal: function(layerData, maxLast, start) {
             // calculate the offset to add first, and add that to pie chart
             var freeStart = moment(maxLast);
             var freeEnd = moment(start);
@@ -205,6 +272,9 @@
             var freeduration = moment.duration(moment(freeEnd).subtract(freeStart)).asHours();
             layerData[0].push({ layer: 0, startAngle: this.calculateCircumference(moment.duration(freeStart).asHours() % 12), value: freeduration, color: freeColor, highlight: freeHighlight, label: "", startTime: freeStart.format("h:mm A"), endTime: freeEnd.format("h:mm A"), isOff: isoff, isFree: true });
 		},
+		update : function(){
+		    this.initialize(this.appointmentList);
+		},
         reflow: function(){
 			helpers.extend(this.SegmentArc.prototype,{
 				x : this.chart.width/2,
@@ -224,7 +294,21 @@
 		    var retval = maxRadius - ((overlapSize / this.maxLayers) * segment.layer);
 		    return retval;
 		},
-        addData: function(segment, atIndex, silent){
+		addData: function(item, atIndex, silent) {
+		    var index = atIndex || this.segments.length;
+		    this.appointmentList.splice(index, 0, item);
+		    if (!silent) {
+		        this.update();
+		    }
+		},
+		removeData: function(atIndex, silent){
+			var indexToDelete = (helpers.isNumber(atIndex)) ? atIndex : this.appointmentList.length - 1;
+			this.appointmentList.splice(indexToDelete, 1);
+			if (!silent) {
+			    this.update();
+			}
+		},
+        addDataInternal: function(segment, atIndex){
 			var index = atIndex || this.segments.length;
 			this.segments.splice(index, 0, new this.SegmentArc({
 				value : segment.value,
@@ -244,11 +328,16 @@
 				endTime: segment.endTime,
 				isOff: segment.isOff,
 				isFree: segment.isFree,
+				appointment: segment.appointment,
+				appointmentIndexAt: segment.appointmentIndexAt,
 			}));
-			if (!silent){
-				this.reflow();
-				this.update();
+		},
+        getItemAtEvent : function(e){
+			var array = this.getSegmentsAtEvent(e);
+			if (array.length === 0) {
+			    return null;
 			}
+			return array[0];
 		},
         getSegmentsAtEvent : function(e){
 			var segmentsArray = [];
@@ -262,6 +351,9 @@
 				}
 			}, this);
 			return segmentsArray;
+		},
+		calculateCircumference : function(value){
+			return (Math.PI*2)*(value / this.total);
 		},
         calculateTotal: function() {
             // time clock is fixed at 12 hours
