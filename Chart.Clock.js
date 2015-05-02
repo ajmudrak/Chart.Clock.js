@@ -77,7 +77,7 @@
         offhoursHighlight: '#aaa',
         
         //Number - the percentage of maximum radius for overlapping appointments
-        overlapRadiusPercent: 25,
+        overlapRadiusPercent: 25
     };
     
     Chart.Type.extend({
@@ -333,7 +333,7 @@
 				appointment: segment.appointment,
 				appointmentIndexAt: segment.appointmentIndexAt,
 				segmentStartTime: segment.segmentStartTime,
-				segmentEndTime: segment.segmentEndTime,
+				segmentEndTime: segment.segmentEndTime
 			}));
 		},
         getItemAtEvent : function(e){
@@ -365,8 +365,10 @@
 		},
         drawHourLineRaw: function(hour) {
             this.chart.ctx.beginPath();
-            this.chart.ctx.moveTo(this.chart.ctx.canvas.width / 2, this.chart.ctx.canvas.height / 2);
-            this.chart.ctx.lineTo((this.chart.ctx.canvas.width / 2) + (Math.sin((hour / -12) * (2 * Math.PI) + Math.PI) * (this.chart.ctx.canvas.width - 2) / 2), (this.chart.ctx.canvas.height / 2) + (Math.cos((hour / -12) * (2 * Math.PI) + Math.PI) * (this.chart.ctx.canvas.height - 2) / 2));            
+            var width = parseInt(this.chart.ctx.canvas.style.width);
+            var height = parseInt(this.chart.ctx.canvas.style.height);
+            this.chart.ctx.moveTo(width / 2, height / 2);
+            this.chart.ctx.lineTo((width / 2) + (Math.sin((hour / -12) * (2 * Math.PI) + Math.PI) * (width - 2) / 2), (height / 2) + (Math.cos((hour / -12) * (2 * Math.PI) + Math.PI) * (height - 2) / 2));
             this.chart.ctx.stroke();
         },
         drawHourLine: function(hour) {
@@ -387,7 +389,7 @@
 					circumference : this.calculateCircumference(segment.value),
 					outerRadius : this.getOuterRadius(segment),
 					innerRadius : 0,
-					startAngle: segment.desiredStartAngle,
+					startAngle: segment.desiredStartAngle
 				},animDecimal);
 
                 segment.startAngle += Math.PI * 1.5;
