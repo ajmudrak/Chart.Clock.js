@@ -1,6 +1,6 @@
 Chart.Clock.js - Clock View for a List of appointments (v1.0.3)
 ==============
-(C)2014 Copyright Andy Mudrak, MIT License
+(C)2022 Copyright Andy Mudrak, MIT License
 
 Chart.Clock.js is an extension to Chart.js to provide a clock chart that 
 displays sections/free time based on a list of appointments, and can also show 
