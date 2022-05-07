@@ -235,8 +235,11 @@ Chart.helpers.bindEvents(myClock, ['click'], clickFunction);
 
 ## Updates / Bug Fixes
 
-### v1.0.2
+### v1.0.3
 - Updated Moment.js to v2.29.3 to eliminate vulnerability
+
+### v1.0.2
+- fixed a rendering bug when drawing the hour lines and current hour
 
 ### v1.0.1
 - fixed issues with start/end time for appointments crossing the end or starting before the beginning of a clock face were showing the truncated times, not the full times
