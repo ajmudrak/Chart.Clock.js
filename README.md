@@ -1,6 +1,6 @@
-Chart.Clock.js - Clock View for a List of appointments (v1.0.1)
+Chart.Clock.js - Clock View for a List of appointments (v1.0.3)
 ==============
-(C)2014 Copyright Andy Mudrak, MIT License
+(C)2022 Copyright Andy Mudrak, MIT License
 
 Chart.Clock.js is an extension to Chart.js to provide a clock chart that 
 displays sections/free time based on a list of appointments, and can also show 
@@ -233,7 +233,14 @@ var clickFunction = function(event) {
 Chart.helpers.bindEvents(myClock, ['click'], clickFunction);
 ```
 
-## Bug Fixes
+## Updates / Bug Fixes
+
+### v1.0.3
+- Updated Moment.js to v2.29.3 to eliminate vulnerability
+
+### v1.0.2
+- fixed a rendering bug when drawing the hour lines and current hour
+
 ### v1.0.1
 - fixed issues with start/end time for appointments crossing the end or starting before the beginning of a clock face were showing the truncated times, not the full times
 - fixed issue with free time appearing as non-working hours if it crossed the end of non-working hours
