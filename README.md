@@ -1,4 +1,4 @@
-Chart.Clock.js - Clock View for a List of appointments (v1.0.1)
+Chart.Clock.js - Clock View for a List of appointments (v1.0.3)
 ==============
 (C)2014 Copyright Andy Mudrak, MIT License
 
