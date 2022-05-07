@@ -233,7 +233,11 @@ var clickFunction = function(event) {
 Chart.helpers.bindEvents(myClock, ['click'], clickFunction);
 ```
 
-## Bug Fixes
+## Updates / Bug Fixes
+
+### v1.0.2
+- Updated Moment.js to v2.29.3 to eliminate vulnerability
+
 ### v1.0.1
 - fixed issues with start/end time for appointments crossing the end or starting before the beginning of a clock face were showing the truncated times, not the full times
 - fixed issue with free time appearing as non-working hours if it crossed the end of non-working hours
